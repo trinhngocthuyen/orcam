@@ -1,8 +1,10 @@
+import SwiftUI
 import Orcam
 
-let a = 17
-let b = 25
+@Init
+struct Foo {
+  let x: Int
+  @State var y: Int
+}
 
-let (result, code) = #stringify(a + b)
-
-print("The value \(result) was produced by the code \"\(code)\"")
+// let foo = Foo(x: 0, y: 0)
