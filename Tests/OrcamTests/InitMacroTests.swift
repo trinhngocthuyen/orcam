@@ -39,7 +39,7 @@ final class InitMacroTests: XCTestCase {
           x: Int,
           y: Double?,
           yy: Optional<Double>,
-          completion: () -> Void
+          completion: @escaping () -> Void
         ) {
           self.x = x
           self.y = y

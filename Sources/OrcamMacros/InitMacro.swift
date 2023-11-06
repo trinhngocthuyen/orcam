@@ -25,7 +25,11 @@ public struct InitMacro: MemberMacro {
          let type = patternBinding.typeAnnotation?.type
       {
         let name = identitifer
-        let typeDescription = type.trimmedDescription
+        var typeDescription = type.trimmedDescription
+        // If it's a closure, add @escaping
+        if type.is(FunctionTypeSyntax.self) {
+          typeDescription = "@escaping \(typeDescription)"
+        }
         headerArgs.append("\(name): \(typeDescription)")
         bodyArgs.append("self.\(name) = \(name)")
       }
