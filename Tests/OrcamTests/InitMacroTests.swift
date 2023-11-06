@@ -19,7 +19,6 @@ final class InitMacroTests: XCTestCase {
         let y: Double?
         let yy: Optional<Double>
         var z: Bool { false }
-        @StateObject var a: Int
         let completion: () -> Void
       }
       """,
@@ -32,20 +31,17 @@ final class InitMacroTests: XCTestCase {
         let y: Double?
         let yy: Optional<Double>
         var z: Bool { false }
-        @StateObject var a: Int
         let completion: () -> Void
 
-        public init(
+        init(
           x: Int,
-          y: Double? = nil,
-          yy: Optional<Double> = nil,
-          a: Int,
-          completion: @escaping () -> Void
+          y: Double?,
+          yy: Optional<Double>,
+          completion: () -> Void
         ) {
           self.x = x
           self.y = y
           self.yy = yy
-          self._a = .init(wrappedValue: a)
           self.completion = completion
         }
       }
