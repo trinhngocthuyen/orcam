@@ -13,24 +13,26 @@ final class InitMacroTests: XCTestCase {
       """
       @Init
       class Foo {
-        var x: Int {
+        var x: Int = 0 {
           didSet { }
         }
         let y: Double?
         let yy: Optional<Double>
         var z: Bool { false }
+        let zz: Int = 0
         let completion: () -> Void
       }
       """,
       expandedSource:
       """
       class Foo {
-        var x: Int {
+        var x: Int = 0 {
           didSet { }
         }
         let y: Double?
         let yy: Optional<Double>
         var z: Bool { false }
+        let zz: Int = 0
         let completion: () -> Void
 
         init(

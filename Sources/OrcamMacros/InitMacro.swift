@@ -19,7 +19,7 @@ public struct InitMacro: MemberMacro {
     }
 
     var headerArgs = [String](), bodyArgs = [String]()
-    for property in declaration.storedProperties() {
+    for property in declaration.storedProperties() where !property.isConstant {
       if let patternBinding = property.bindings.first?.as(PatternBindingSyntax.self),
          let identitifer = patternBinding.pattern.as(IdentifierPatternSyntax.self)?.identifier,
          let type = patternBinding.typeAnnotation?.type

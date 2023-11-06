@@ -3,12 +3,8 @@ import SwiftSyntaxBuilder
 
 
 extension DeclGroupSyntax {
-  func getKeywords() -> [Keyword] {
-    modifiers.compactMap { $0.name.keyword }
-  }
-
   func isPublic() -> Bool {
-    let keywords = getKeywords()
+    guard let keywords = (self as? WithModifiersSyntax)?.getKeywords() else { return false }
     return keywords.contains(.public) || keywords.contains(.open)
   }
 
@@ -20,9 +16,19 @@ extension DeclGroupSyntax {
   }
 }
 
+extension WithModifiersSyntax {
+  func getKeywords() -> [Keyword] {
+    modifiers.compactMap { $0.name.keyword }
+  }
+}
+
 extension VariableDeclSyntax {
   var isInitialized: Bool {
     bindings.first?.initializer != nil
+  }
+
+  var isConstant: Bool {
+    isInitialized && bindingSpecifier.tokenKind == .keyword(.let)
   }
 
   var isComputedProperty: Bool {
