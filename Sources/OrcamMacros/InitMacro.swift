@@ -5,10 +5,6 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 public struct InitMacro: MemberMacro {
-  enum CustomError: Error {
-    case message(String)
-  }
-
   public static func expansion(
     of node: AttributeSyntax,
     providingMembersOf declaration: some DeclGroupSyntax,
@@ -17,6 +13,8 @@ public struct InitMacro: MemberMacro {
     guard declaration.is(StructDeclSyntax.self) || declaration.is(ClassDeclSyntax.self) else {
       throw CustomError.message("Not a struct or class")
     }
+
+    let defaultForOptional = try node.getArgument(name: "defaultForOptional", default: true)
 
     var headerArgs = [String](), bodyArgs = [String]()
     for property in declaration.storedProperties() where !property.isConstant {
@@ -29,6 +27,9 @@ public struct InitMacro: MemberMacro {
         // If it's a closure, add @escaping
         if type.is(FunctionTypeSyntax.self) {
           typeDescription = "@escaping \(typeDescription)"
+        }
+        if defaultForOptional && (typeDescription.contains("?") || typeDescription.contains("Optional<")) {
+           typeDescription  += " = nil"
         }
         headerArgs.append("\(name): \(typeDescription)")
         bodyArgs.append("self.\(name) = \(name)")

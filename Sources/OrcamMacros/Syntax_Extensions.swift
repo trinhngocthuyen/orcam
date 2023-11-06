@@ -57,3 +57,34 @@ extension SyntaxExpressibleByStringInterpolation {
     self.init(stringLiteral: String(format: format, arguments))
   }
 }
+
+extension AttributeSyntax {
+  func labeledArguments() -> [String: LabeledExprSyntax] {
+    guard let args = arguments?.as(LabeledExprListSyntax.self) else { return [:] }
+    return Dictionary(uniqueKeysWithValues: args.map { ($0.label?.text ?? "", $0) })
+  }
+
+  func getArgument<Value>(name: String, default: Value) throws -> Value {
+    guard let argument = labeledArguments()[name] else { return `default` }
+    switch `default` {
+    case is Bool:
+      if let literal = argument.expression.as(BooleanLiteralExprSyntax.self)?.literal.text,
+         let value = Bool(literal) {
+        return value as! Value
+      }
+    case is Int:
+      if let literal = argument.expression.as(IntegerLiteralExprSyntax.self)?.literal.text,
+         let value = Int(literal) {
+        return value as! Value
+      }
+    case is Float, is Double:
+      if let literal = argument.expression.as(FloatLiteralExprSyntax.self)?.literal.text,
+         let value = Float(literal) {
+        return value as! Value
+      }
+    default:
+      throw CustomError.message("Type \(`default`.self) is not supported in the arguments")
+    }
+    return `default`
+  }
+}

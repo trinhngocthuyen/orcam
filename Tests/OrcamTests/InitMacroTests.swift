@@ -16,10 +16,8 @@ final class InitMacroTests: XCTestCase {
         var x: Int = 0 {
           didSet { }
         }
-        let y: Double?
-        let yy: Optional<Double>
-        var z: Bool { false }
-        let zz: Int = 0
+        var y: Bool { false }
+        let z: Int = 0
         let completion: () -> Void
       }
       """,
@@ -29,22 +27,72 @@ final class InitMacroTests: XCTestCase {
         var x: Int = 0 {
           didSet { }
         }
-        let y: Double?
-        let yy: Optional<Double>
-        var z: Bool { false }
-        let zz: Int = 0
+        var y: Bool { false }
+        let z: Int = 0
         let completion: () -> Void
 
         init(
           x: Int,
-          y: Double?,
-          yy: Optional<Double>,
           completion: @escaping () -> Void
         ) {
           self.x = x
-          self.y = y
-          self.yy = yy
           self.completion = completion
+        }
+      }
+      """,
+      macros: testMacros,
+      indentationWidth: .spaces(2)
+    )
+  }
+
+  func testDefaultForOptional() {
+    assertMacroExpansion(
+      """
+      @Init
+      class Foo {
+        let x: Double?
+        let y: Optional<Double>
+      }
+      """,
+      expandedSource:
+      """
+      class Foo {
+        let x: Double?
+        let y: Optional<Double>
+
+        init(
+          x: Double? = nil,
+          y: Optional<Double> = nil
+        ) {
+          self.x = x
+          self.y = y
+        }
+      }
+      """,
+      macros: testMacros,
+      indentationWidth: .spaces(2)
+    )
+
+    assertMacroExpansion(
+      """
+      @Init(defaultForOptional: false)
+      class Foo {
+        let x: Double?
+        let y: Optional<Double>
+      }
+      """,
+      expandedSource:
+      """
+      class Foo {
+        let x: Double?
+        let y: Optional<Double>
+
+        init(
+          x: Double?,
+          y: Optional<Double>
+        ) {
+          self.x = x
+          self.y = y
         }
       }
       """,

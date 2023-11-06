@@ -1,2 +1,4 @@
 @attached(member, names: named(init))
-public macro Init() = #externalMacro(module: "OrcamMacros", type: "InitMacro")
+public macro Init(
+  defaultForOptional: Bool = true
+) = #externalMacro(module: "OrcamMacros", type: "InitMacro")
