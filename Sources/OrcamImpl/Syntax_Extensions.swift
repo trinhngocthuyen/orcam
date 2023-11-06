@@ -83,7 +83,7 @@ extension AttributeSyntax {
         return value as! Value
       }
     default:
-      throw CustomError.message("Type \(`default`.self) is not supported in the arguments")
+      throw MacroError.message("Type \(`default`.self) is not supported in the arguments")
     }
     return `default`
   }

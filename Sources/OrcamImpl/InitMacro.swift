@@ -11,7 +11,7 @@ public struct InitMacro: MemberMacro {
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
     guard declaration.is(StructDeclSyntax.self) || declaration.is(ClassDeclSyntax.self) else {
-      throw CustomError.message("Not a struct or class")
+      throw MacroError.message("Not a struct or class")
     }
 
     let defaultForOptional = try node.getArgument(name: "defaultForOptional", default: true)

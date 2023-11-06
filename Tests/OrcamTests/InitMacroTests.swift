@@ -1,7 +1,7 @@
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
-import OrcamMacros
+import OrcamImpl
 
 let testMacros: [String: Macro.Type] = [
   "Init": InitMacro.self

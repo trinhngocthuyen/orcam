@@ -22,19 +22,19 @@ let package = Package(
   ],
   targets: [
     .macro(
-      name: "OrcamMacros",
+      name: "OrcamImpl",
       dependencies: [
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
       ]
     ),
 
-    .target(name: "Orcam", dependencies: ["OrcamMacros"]),
+    .target(name: "Orcam", dependencies: ["OrcamImpl"]),
     .executableTarget(name: "OrcamClient", dependencies: ["Orcam"]),
     .testTarget(
       name: "OrcamTests",
       dependencies: [
-        "OrcamMacros",
+        "OrcamImpl",
         .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
       ]
     ),
