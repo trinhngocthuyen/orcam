@@ -3,6 +3,7 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
+import MacroToolkit
 
 public struct InitMacro: MemberMacro {
   public static func expansion(
@@ -13,39 +14,51 @@ public struct InitMacro: MemberMacro {
     guard declaration.is(StructDeclSyntax.self) || declaration.is(ClassDeclSyntax.self) else {
       throw MacroError.message("Not a struct or class")
     }
+    guard let attribute = Attribute(node).asMacroAttribute else {
+      throw MacroError.message("Cannot cast \(node) to MacroAttribute")
+    }
 
-    let defaultForOptional = try node.getArgument(name: "defaultForOptional", default: true)
+    let group = DeclGroup(declaration)
+    let defaultForOptional = attribute.argument(labeled: "defaultForOptional")?.asBooleanLiteral?.value ?? true
+    var rawHeaders = [String](), rawBodies = [String]()
 
-    var headerArgs = [String](), bodyArgs = [String]()
-    for property in declaration.storedProperties() where !property.isConstant {
-      if let patternBinding = property.bindings.first?.as(PatternBindingSyntax.self),
-         let identitifer = patternBinding.pattern.as(IdentifierPatternSyntax.self)?.identifier,
-         let type = patternBinding.typeAnnotation?.type
-      {
-        let name = identitifer
-        var typeDescription = type.trimmedDescription
-        // If it's a closure, add @escaping
-        if type.is(FunctionTypeSyntax.self) {
-          typeDescription = "@escaping \(typeDescription)"
+    func makeHeader(for binding: VariableBinding) -> String? {
+      guard let identifier = binding.identifier, let type = binding.type else { return nil }
+      if type.asFunctionType != nil {
+        return "\(identifier): @escaping \(type.description)"
+      }
+      if defaultForOptional, type.isOptional {
+        return "\(identifier): \(type.description) = nil"
+      }
+      return "\(identifier): \(type.description)"
+    }
+
+    func makeBody(for binding: VariableBinding) -> String? {
+      guard let identifier = binding.identifier, let type = binding.type else { return nil }
+      return "self.\(identifier) = \(identifier)"
+    }
+
+    for variable in group.variables where variable.isStoredProperty && !variable.isConstant {
+      for binding in variable.bindings {
+        if let rawHeader = makeHeader(for: binding), let rawBody = makeBody(for: binding) {
+          rawHeaders.append(rawHeader)
+          rawBodies.append(rawBody)
         }
-        if defaultForOptional && (typeDescription.contains("?") || typeDescription.contains("Optional<")) {
-           typeDescription  += " = nil"
-        }
-        headerArgs.append("\(name): \(typeDescription)")
-        bodyArgs.append("self.\(name) = \(name)")
       }
     }
 
     let header = SyntaxNodeString(
-      format: "%@(\n%@\n)",
-      declaration.isPublic() ? "public init" : "init",
-      headerArgs.joined(separator: ",\n")
+      stringLiteral: String(
+        format: "%@(\n%@\n)",
+        group.isPublic ? "public init" : "init",
+        rawHeaders.joined(separator: ",\n")
+      )
     )
-    let initDeclSyntax = try InitializerDeclSyntax(header) {
-      for arg in bodyArgs {
-        ExprSyntax(stringLiteral: arg)
+    let initDecl = try InitializerDeclSyntax(header) {
+      for raw in rawBodies {
+        ExprSyntax(stringLiteral: raw)
       }
     }
-    return [DeclSyntax(initDeclSyntax)]
+    return [DeclSyntax(initDecl)]
   }
 }

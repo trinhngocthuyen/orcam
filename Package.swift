@@ -19,13 +19,15 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0"),
+    .package(url: "https://github.com/stackotter/swift-macro-toolkit.git", from: "0.3.1"),
   ],
   targets: [
     .macro(
       name: "OrcamImpl",
       dependencies: [
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-        .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+        .product(name: "MacroToolkit", package: "swift-macro-toolkit"),
       ]
     ),
 
