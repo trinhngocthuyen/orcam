@@ -3,11 +3,9 @@ import SwiftSyntaxMacrosTestSupport
 import XCTest
 import OrcamImpl
 
-let testMacros: [String: Macro.Type] = [
-  "Init": InitMacro.self
-]
-
 final class InitMacroTests: XCTestCase {
+  private var testMacros: [String: Macro.Type] { ["Init": InitMacro.self] }
+
   func testMacroForClass() {
     assertMacroExpansion(
       """

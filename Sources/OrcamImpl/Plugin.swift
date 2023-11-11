@@ -5,5 +5,6 @@ import SwiftSyntaxMacros
 struct OrcamPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         InitMacro.self,
+        SingletonMacro.self,
     ]
 }

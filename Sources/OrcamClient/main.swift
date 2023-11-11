@@ -10,3 +10,9 @@ struct Foo {
 }
 
 // let foo = Foo(x: 0, y: 0)
+
+@Singleton
+class Service {
+}
+
+//let service = Service.shared

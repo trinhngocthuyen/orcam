@@ -11,6 +11,13 @@ public struct SingletonMacro: BaseMemberMacro {
     providingMembersOf declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
-    return []
+    
+
+    return [
+      try InitializerDeclSyntax(
+        accessLevel: "private",
+        literals: []
+      ).asDeclSyntax,
+    ]
   }
 }
