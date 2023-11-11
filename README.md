@@ -56,3 +56,26 @@ class Foo {
 }
 ```
 </details>
+
+### `@Singleton` - Generate the Singleton code of a struct/class
+
+```swift
+@Singleton
+class Foo {
+}
+```
+
+<details>
+  <summary>Expanded code</summary>
+
+```swift
+class Foo {
+  static let shared = Foo()
+
+  private init(
+
+  ) {
+  }
+}
+```
+</details>
