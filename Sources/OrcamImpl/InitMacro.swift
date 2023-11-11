@@ -5,22 +5,16 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 import MacroToolkit
 
-public struct InitMacro: MemberMacro {
+public struct InitMacro: BaseMemberMacro {
   public static func expansion(
     of node: AttributeSyntax,
     providingMembersOf declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
-    guard declaration.is(StructDeclSyntax.self) || declaration.is(ClassDeclSyntax.self) else {
-      throw MacroError("Not a struct or class")
-    }
-    guard let attribute = Attribute(node).asMacroAttribute else {
-      throw MacroError("Cannot cast \(node) to MacroAttribute")
-    }
-
+    try declaration.expectKind(.classDecl, .structDecl)
     let group = DeclGroup(declaration)
+    let attribute = try node.asMacroAttribute
     let defaultForOptional = attribute.argument(labeled: "defaultForOptional")?.asBooleanLiteral?.value ?? true
-    var rawHeaders = [String](), rawBodies = [String]()
 
     func makeHeader(for binding: VariableBinding) -> String? {
       guard let identifier = binding.identifier, let type = binding.type else { return nil }
@@ -38,27 +32,15 @@ public struct InitMacro: MemberMacro {
       return "self.\(identifier) = \(identifier)"
     }
 
-    for variable in group.variables where variable.isStoredProperty && !variable.isConstant {
-      for binding in variable.bindings {
-        if let rawHeader = makeHeader(for: binding), let rawBody = makeBody(for: binding) {
-          rawHeaders.append(rawHeader)
-          rawBodies.append(rawBody)
-        }
-      }
+    let literals = group.variables.flatMap { variable -> [(String, String)] in
+      guard variable.isStoredProperty, !variable.isConstant else { return [] }
+      return variable.bindings.compactMap { zip(makeHeader(for: $0), makeBody(for: $0)) }
     }
-
-    let header = SyntaxNodeString(
-      stringLiteral: String(
-        format: "%@(\n%@\n)",
-        group.isPublic ? "public init" : "init",
-        rawHeaders.joined(separator: ",\n")
-      )
-    )
-    let initDecl = try InitializerDeclSyntax(header) {
-      for raw in rawBodies {
-        ExprSyntax(stringLiteral: raw)
-      }
-    }
-    return [DeclSyntax(initDecl)]
+    return try [
+      InitializerDeclSyntax(
+        accessLevel: group.accessLevel,
+        literals: literals
+      ).asDeclSyntax
+    ]
   }
 }
