@@ -3,7 +3,7 @@ import SwiftSyntaxMacrosTestSupport
 import XCTest
 import OrcamImpl
 
-final class InitMacroTests: XCTestCase {
+final class InitMacroTests: BaseMacroTests {
   private var testMacros: [String: Macro.Type] { ["Init": InitMacro.self] }
 
   func testMacroForClass() {
@@ -37,9 +37,7 @@ final class InitMacroTests: XCTestCase {
           self.completion = completion
         }
       }
-      """,
-      macros: testMacros,
-      indentationWidth: .spaces(2)
+      """
     )
   }
 
@@ -66,9 +64,7 @@ final class InitMacroTests: XCTestCase {
           self.y = y
         }
       }
-      """,
-      macros: testMacros,
-      indentationWidth: .spaces(2)
+      """
     )
 
     assertMacroExpansion(
@@ -93,9 +89,7 @@ final class InitMacroTests: XCTestCase {
           self.y = y
         }
       }
-      """,
-      macros: testMacros,
-      indentationWidth: .spaces(2)
+      """
     )
   }
 }

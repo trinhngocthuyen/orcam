@@ -3,7 +3,7 @@ import SwiftSyntaxMacrosTestSupport
 import XCTest
 import OrcamImpl
 
-final class SingletonMacroTests: XCTestCase {
+final class SingletonMacroTests: BaseMacroTests {
   private var testMacros: [String: Macro.Type] { ["Singleton": SingletonMacro.self] }
 
   func testMacro() {
@@ -24,9 +24,7 @@ final class SingletonMacroTests: XCTestCase {
         ) {
         }
       }
-      """,
-      macros: testMacros,
-      indentationWidth: .spaces(2)
+      """
     )
   }
 
@@ -48,9 +46,7 @@ final class SingletonMacroTests: XCTestCase {
         ) {
         }
       }
-      """,
-      macros: testMacros,
-      indentationWidth: .spaces(2)
+      """
     )
   }
 }
