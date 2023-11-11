@@ -68,6 +68,12 @@ public extension DeclGroupSyntax {
   private var _proxy: WithModifiersSyntaxProxy { .init(self) }
   var keywords: [Keyword] { _proxy.keywords }
   var accessLevel: String? {  _proxy.accessLevel }
+
+  var entityName: TokenSyntax? {
+    self.as(ClassDeclSyntax.self)?.name ??
+    self.as(StructDeclSyntax.self)?.name ??
+    self.as(EnumDeclSyntax.self)?.name
+  }
 }
 
 public extension InitializerDeclSyntax {

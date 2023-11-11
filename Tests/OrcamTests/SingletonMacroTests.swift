@@ -6,7 +6,7 @@ import OrcamImpl
 final class SingletonMacroTests: XCTestCase {
   private var testMacros: [String: Macro.Type] { ["Singleton": SingletonMacro.self] }
 
-  func testMacroForClass() {
+  func testMacro() {
     assertMacroExpansion(
       """
       @Singleton
@@ -16,6 +16,7 @@ final class SingletonMacroTests: XCTestCase {
       expandedSource:
       """
       class Foo {
+
         static let shared = Foo()
 
         private init(
