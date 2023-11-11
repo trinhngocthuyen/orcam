@@ -79,3 +79,14 @@ class Foo {
 }
 ```
 </details>
+
+The macro still works when we explicitly declare the `shared` variable.
+
+```swift
+@Singleton
+class Foo {
+  let x: Int
+
+  static let shared = Foo(x: 0)
+}
+```
