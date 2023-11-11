@@ -110,6 +110,10 @@ public extension TokenKind {
 public extension DeclGroup {
   var variables: [Variable] { members.compactMap { $0.asVariable } }
   var accessLevel: String? {  _syntax.accessLevel }
+
+  func containsVariable(name: String) -> Bool {
+    variables.contains { $0.identifiers.contains(name) }
+  }
 }
 
 public extension Type {

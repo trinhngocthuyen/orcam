@@ -29,5 +29,29 @@ final class SingletonMacroTests: XCTestCase {
       indentationWidth: .spaces(2)
     )
   }
+
+  func testMacroWithPredefinedShared() {
+    assertMacroExpansion(
+      """
+      @Singleton
+      class Foo {
+        static let shared = Foo()
+      }
+      """,
+      expandedSource:
+      """
+      class Foo {
+        static let shared = Foo()
+
+        private init(
+
+        ) {
+        }
+      }
+      """,
+      macros: testMacros,
+      indentationWidth: .spaces(2)
+    )
+  }
 }
 

@@ -6,16 +6,19 @@ import SwiftSyntaxMacros
 import MacroToolkit
 
 public struct InitMacro: BaseMemberMacro {
-  public static func expansion(
+  static func expansion(
     of node: AttributeSyntax,
     providingMembersOf declaration: some DeclGroupSyntax,
-    in context: some MacroExpansionContext
+    in context: some MacroExpansionContext,
+    arguments: [String: Any]
   ) throws -> [DeclSyntax] {
     try declaration.expectKind(.classDecl, .structDecl)
     let group = DeclGroup(declaration)
     let attribute = try node.asMacroAttribute
-    let defaultForOptional = attribute.argument(labeled: "defaultForOptional")?.asBooleanLiteral?.value ?? true
-    let accessLevel = attribute.argument(labeled: "accessLevel")?.asStringLiteral?.value ?? group.accessLevel
+    let defaultForOptional = (arguments["defaultForOptional"] as? Bool) ??
+    attribute.argument(labeled: "defaultForOptional")?.asBooleanLiteral?.value ?? true
+    let accessLevel = (arguments["accessLevel"] as? String) ??
+    attribute.argument(labeled: "accessLevel")?.asStringLiteral?.value ?? group.accessLevel
 
     func makeHeader(for binding: VariableBinding) -> String? {
       guard let identifier = binding.identifier, let type = binding.type else { return nil }
@@ -43,5 +46,18 @@ public struct InitMacro: BaseMemberMacro {
         literals: literals
       ).asDeclSyntax
     ]
+  }
+
+  public static func expansion(
+    of node: AttributeSyntax,
+    providingMembersOf declaration: some DeclGroupSyntax,
+    in context: some MacroExpansionContext
+  ) throws -> [DeclSyntax] {
+    try expansion(
+      of: node,
+      providingMembersOf: declaration,
+      in: context,
+      arguments: [:]
+    )
   }
 }
