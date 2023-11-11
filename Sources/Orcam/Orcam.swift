@@ -1,6 +1,7 @@
 @attached(member, names: named(init))
 public macro Init(
-  defaultForOptional: Bool = true
+  defaultForOptional: Bool = true,
+  accessLevel: String? = nil
 ) = #externalMacro(module: "OrcamImpl", type: "InitMacro")
 
 
