@@ -12,10 +12,10 @@ public struct InitMacro: MemberMacro {
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
     guard declaration.is(StructDeclSyntax.self) || declaration.is(ClassDeclSyntax.self) else {
-      throw MacroError.message("Not a struct or class")
+      throw MacroError("Not a struct or class")
     }
     guard let attribute = Attribute(node).asMacroAttribute else {
-      throw MacroError.message("Cannot cast \(node) to MacroAttribute")
+      throw MacroError("Cannot cast \(node) to MacroAttribute")
     }
 
     let group = DeclGroup(declaration)
