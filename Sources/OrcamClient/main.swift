@@ -1,18 +1,36 @@
 import SwiftUI
 import Orcam
 
-@Init
-struct Foo {
-  let x: Int
-  let y: Int = 0
-  let z: Optional<Int>
-  let completion: () -> Void
+// MARK: @Init
+// -------------------------------------------
+do {
+  @Init
+  struct Foo {
+    let x: Int
+    let y: Int = 0
+    let z: Optional<Int>
+    let completion: () -> Void
+  }
+
+  _ = Foo(x: 0) { }
+
+  @Init
+  struct Container {
+    final class VM: ObservableObject { }
+
+    @State var x: Int
+    @StateObject var vm: VM
+  }
+
+  _ = Container(x: 0, vm: .init())
 }
 
-// let foo = Foo(x: 0, y: 0)
+// MARK: @Singleton
+// -------------------------------------------
+do {
+  @Singleton
+  class Service {
+  }
 
-@Singleton
-class Service {
+  _ = Service.shared
 }
-
-//let service = Service.shared

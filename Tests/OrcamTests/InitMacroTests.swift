@@ -92,5 +92,35 @@ final class InitMacroTests: BaseMacroTests {
       """
     )
   }
-}
 
+  func testWithPropertyWrapper() {
+    assertMacroExpansion(
+      """
+      @Init
+      class Foo {
+        final class VM: ObservableObject {}
+
+        @State var x: Int
+        @StateObject var vm: VM
+      }
+      """,
+      expandedSource:
+      """
+      class Foo {
+        final class VM: ObservableObject {}
+
+        @State var x: Int
+        @StateObject var vm: VM
+
+        init(
+          x: Int,
+          vm: VM
+        ) {
+          self._x = .init(wrappedValue: x)
+          self._vm = .init(wrappedValue: vm)
+        }
+      }
+      """
+    )
+  }
+}

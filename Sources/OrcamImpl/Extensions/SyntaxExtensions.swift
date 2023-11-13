@@ -126,4 +126,8 @@ public extension Variable {
   var isLet: Bool { _syntax.bindingSpecifier.tokenKind.keyword == .let }
   var isInitialized: Bool { bindings.contains { $0.initialValue != nil } }
   var isConstant: Bool { isLet && isInitialized }
+
+  var isPropertyWrapper: Bool {
+    !attributes.compactMap(\.attribute).isEmpty
+  }
 }

@@ -20,7 +20,7 @@ public struct InitMacro: BaseMemberMacro {
     let accessLevel = (arguments["accessLevel"] as? String) ??
     attribute.argument(labeled: "accessLevel")?.asStringLiteral?.value ?? group.accessLevel
 
-    func makeHeader(for binding: VariableBinding) -> String? {
+    func makeHeader(for binding: VariableBinding, variable: Variable) -> String? {
       guard let identifier = binding.identifier, let type = binding.type else { return nil }
       if type.asFunctionType != nil {
         return "\(identifier): @escaping \(type.description)"
@@ -31,14 +31,22 @@ public struct InitMacro: BaseMemberMacro {
       return "\(identifier): \(type.description)"
     }
 
-    func makeBody(for binding: VariableBinding) -> String? {
-      guard let identifier = binding.identifier, let type = binding.type else { return nil }
+    func makeBody(for binding: VariableBinding, variable: Variable) -> String? {
+      guard let identifier = binding.identifier else { return nil }
+      if variable.isPropertyWrapper {
+        return "self._\(identifier) = .init(wrappedValue: \(identifier))"
+      }
       return "self.\(identifier) = \(identifier)"
     }
 
     let literals = group.variables.flatMap { variable -> [(String, String)] in
       guard variable.isStoredProperty, !variable.isConstant else { return [] }
-      return variable.bindings.compactMap { zip(makeHeader(for: $0), makeBody(for: $0)) }
+      return variable.bindings.compactMap {
+        zip(
+          makeHeader(for: $0, variable: variable),
+          makeBody(for: $0, variable: variable)
+        )
+      }
     }
     return try [
       InitializerDeclSyntax(
