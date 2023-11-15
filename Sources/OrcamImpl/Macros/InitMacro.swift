@@ -16,9 +16,9 @@ public struct InitMacro: BaseMemberMacro {
     let group = DeclGroup(declaration)
     let attribute = try node.asMacroAttribute
     let defaultForOptional = (arguments["defaultForOptional"] as? Bool) ??
-    attribute.argument(labeled: "defaultForOptional")?.asBooleanLiteral?.value ?? true
+      attribute.argument(labeled: "defaultForOptional")?.asBooleanLiteral?.value ?? true
     let accessLevel = (arguments["accessLevel"] as? String) ??
-    attribute.argument(labeled: "accessLevel")?.asStringLiteral?.value ?? group.accessLevel
+      attribute.argument(labeled: "accessLevel")?.asStringLiteral?.value ?? group.accessLevel
 
     func makeHeader(for binding: VariableBinding, variable: Variable) -> String? {
       guard let identifier = binding.identifier, let type = binding.type else { return nil }
@@ -52,7 +52,7 @@ public struct InitMacro: BaseMemberMacro {
       InitializerDeclSyntax(
         accessLevel: accessLevel,
         literals: literals
-      ).asDeclSyntax
+      ).asDeclSyntax,
     ]
   }
 

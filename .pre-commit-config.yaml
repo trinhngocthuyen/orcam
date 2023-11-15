@@ -1,0 +1,11 @@
+repos:
+  # For more useful hooks, refer to https://pre-commit.com/hooks.html
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: trailing-whitespace
+  - repo: https://github.com/nicklockwood/SwiftFormat
+    rev: 0.51.12
+    hooks:
+      - id: swiftformat

@@ -2,21 +2,23 @@ import SwiftUI
 import Orcam
 
 // MARK: @Init
+
 // -------------------------------------------
 do {
   @Init
   struct Foo {
     let x: Int
     let y: Int = 0
+    // swiftformat:disable:next typeSugar
     let z: Optional<Int>
     let completion: () -> Void
   }
 
-  _ = Foo(x: 0) { }
+  _ = Foo(x: 0) {}
 
   @Init
   struct Container {
-    final class VM: ObservableObject { }
+    final class VM: ObservableObject {}
 
     @State var x: Int
     @StateObject var vm: VM
@@ -26,11 +28,11 @@ do {
 }
 
 // MARK: @Singleton
+
 // -------------------------------------------
 do {
   @Singleton
-  class Service {
-  }
+  class Service {}
 
   _ = Service.shared
 }

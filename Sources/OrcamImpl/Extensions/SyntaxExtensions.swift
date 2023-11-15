@@ -3,6 +3,7 @@ import SwiftSyntaxBuilder
 import MacroToolkit
 
 // MARK: swift-syntax's types
+
 public extension SyntaxProtocol {
   func expectKind(_ kinds: SyntaxKind...) throws {
     guard kinds.contains(kind) else {
@@ -28,7 +29,6 @@ public extension DeclSyntaxProtocol {
   }
 }
 
-
 // NOTE: This struct is a proxy to unify the modifiers syntax.
 // Apple declares both `WithModifiersSyntax` and `DeclGroupSyntax` having the same `modifiers` property.
 // However, the two protocols have no relation at all.
@@ -45,7 +45,7 @@ private struct WithModifiersSyntaxProxy {
   }
 
   var keywords: [Keyword] {
-    modifiers.compactMap { $0.name.tokenKind.keyword }
+    modifiers.compactMap(\.name.tokenKind.keyword)
   }
 
   var accessLevel: String? {
@@ -61,18 +61,18 @@ private struct WithModifiersSyntaxProxy {
 public extension WithModifiersSyntax {
   private var _proxy: WithModifiersSyntaxProxy { .init(self) }
   var keywords: [Keyword] { _proxy.keywords }
-  var accessLevel: String? {  _proxy.accessLevel }
+  var accessLevel: String? { _proxy.accessLevel }
 }
 
 public extension DeclGroupSyntax {
   private var _proxy: WithModifiersSyntaxProxy { .init(self) }
   var keywords: [Keyword] { _proxy.keywords }
-  var accessLevel: String? {  _proxy.accessLevel }
+  var accessLevel: String? { _proxy.accessLevel }
 
   var entityName: TokenSyntax? {
     self.as(ClassDeclSyntax.self)?.name ??
-    self.as(StructDeclSyntax.self)?.name ??
-    self.as(EnumDeclSyntax.self)?.name
+      self.as(StructDeclSyntax.self)?.name ??
+      self.as(EnumDeclSyntax.self)?.name
   }
 }
 
@@ -85,7 +85,7 @@ public extension InitializerDeclSyntax {
       stringLiteral: String(
         format: "%@(\n%@\n)",
         [accessLevel, "init"].compactMap { $0 }.joined(separator: " "),
-        literals.map { $0.header }.joined(separator: ",\n")
+        literals.map(\.header).joined(separator: ",\n")
       )
     )
     try self.init(header) {
@@ -99,17 +99,17 @@ public extension InitializerDeclSyntax {
 public extension TokenKind {
   var keyword: Keyword? {
     switch self {
-    case .keyword(let keyword): return keyword
+    case let .keyword(keyword): return keyword
     default: return nil
     }
   }
 }
 
-
 // MARK: swift-macro-toolkit's types
+
 public extension DeclGroup {
-  var variables: [Variable] { members.compactMap { $0.asVariable } }
-  var accessLevel: String? {  _syntax.accessLevel }
+  var variables: [Variable] { members.compactMap(\.asVariable) }
+  var accessLevel: String? { _syntax.accessLevel }
 
   func containsVariable(name: String) -> Bool {
     variables.contains { $0.identifiers.contains(name) }
