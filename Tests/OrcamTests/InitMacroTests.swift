@@ -8,7 +8,7 @@ final class InitMacroTests: BaseMacroTests {
     assertMacroExpansion(
       """
       @Init
-      class Foo {
+      public class Foo {
         var x: Int = 0 {
           didSet { }
         }
@@ -19,7 +19,7 @@ final class InitMacroTests: BaseMacroTests {
       """,
       expandedSource:
       """
-      class Foo {
+      public class Foo {
         var x: Int = 0 {
           didSet { }
         }
@@ -27,7 +27,7 @@ final class InitMacroTests: BaseMacroTests {
         let z: Int = 0
         let completion: () -> Void
 
-        init(x: Int, completion: @escaping () -> Void) {
+        public init(x: Int, completion: @escaping () -> Void) {
           self.x = x
           self.completion = completion
         }

@@ -63,6 +63,14 @@ public extension WithModifiersSyntax {
   private var _proxy: WithModifiersSyntaxProxy { .init(self) }
   var keywords: [Keyword] { _proxy.keywords }
   var accessLevel: String? { _proxy.accessLevel }
+
+  func withAccessLevel(_ accessLevel: String?) -> Self {
+    guard let accessLevel else { return self }
+    return with(
+      \.modifiers,
+      modifiers + [DeclModifierSyntax(name: "\(raw: accessLevel)")]
+    )
+  }
 }
 
 public extension DeclGroupSyntax {

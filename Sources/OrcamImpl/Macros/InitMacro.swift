@@ -29,8 +29,7 @@ public struct InitMacro: BaseMemberMacro {
           return defaultForOptional ? parameter?.withDefaultValueForOptional : parameter
         }
       }
-
-    let initDeclSyntax = try InitializerDeclSyntax("\(raw: accessLevel?.withTrailingSpacing ?? "")init()") {
+    let initDeclSyntax = try InitializerDeclSyntax("init()") {
       for parameter in parameters {
         if propertyWrapperVariables.contains(parameter.name) {
           "self._\(raw: parameter.name) = .init(wrappedValue: \(raw: parameter.name))"
@@ -38,8 +37,9 @@ public struct InitMacro: BaseMemberMacro {
           "self.\(raw: parameter.name) = \(raw: parameter.name)"
         }
       }
-    }.withParameters(parameters)
-
+    }
+    .withParameters(parameters)
+    .withAccessLevel(accessLevel)
     return [
       initDeclSyntax.asDeclSyntax,
     ]
