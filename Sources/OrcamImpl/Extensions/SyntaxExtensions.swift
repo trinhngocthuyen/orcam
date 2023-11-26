@@ -52,6 +52,7 @@ private struct WithModifiersSyntaxProxy {
     let kws = keywords
     if kws.contains(.open) { return "open" }
     if kws.contains(.public) { return "public" }
+    if kws.contains(.internal) { return "internal" }
     if kws.contains(.private) { return "private" }
     if kws.contains(.fileprivate) { return "fileprivate" }
     return nil
@@ -77,22 +78,17 @@ public extension DeclGroupSyntax {
 }
 
 public extension InitializerDeclSyntax {
-  init(
-    accessLevel: String? = nil,
-    literals: [(header: String, body: String)]
-  ) throws {
-    let header = SyntaxNodeString(
-      stringLiteral: String(
-        format: "%@(\n%@\n)",
-        [accessLevel, "init"].compactMap { $0 }.joined(separator: " "),
-        literals.map(\.header).joined(separator: ",\n")
-      )
+  func withParameters(
+    _ parameters: some Sequence<FunctionParameter>
+  ) -> Self {
+    with(
+      \.signature,
+      signature
+        .with(
+          \.parameterClause,
+          FunctionParameterClauseSyntax(parameters: parameters.asParameterList)
+        )
     )
-    try self.init(header) {
-      for literal in literals {
-        ExprSyntax(stringLiteral: literal.body)
-      }
-    }
   }
 }
 
@@ -129,5 +125,33 @@ public extension Variable {
 
   var isPropertyWrapper: Bool {
     !attributes.compactMap(\.attribute).isEmpty
+  }
+}
+
+public extension VariableBinding {
+  var asFunctionParameter: FunctionParameter? {
+    zip(self.identifier, self.type).map { FunctionParameter(name: $0.0, type: $0.1) }
+  }
+}
+
+public extension FunctionParameter {
+  var withEscapingAttribute: Self {
+    guard let type = type.asFunctionType else { return self }
+    return FunctionParameter(
+      label: label,
+      name: name,
+      type: "@escaping \(raw: type.description)"
+    )
+  }
+
+  var withDefaultValueForOptional: Self {
+    guard type.isOptional else { return self }
+    var copy = self
+    copy._syntax.defaultValue = InitializerClauseSyntax(value: NilLiteralExprSyntax())
+    return copy
+  }
+
+  func withoutTrivia() -> Self {
+    FunctionParameter(_syntax.withoutTrivia())
   }
 }

@@ -20,39 +20,28 @@ public struct InitMacro: BaseMemberMacro {
     let accessLevel = (arguments["accessLevel"] as? String) ??
       attribute.argument(labeled: "accessLevel")?.asStringLiteral?.value ?? group.accessLevel
 
-    func makeHeader(for binding: VariableBinding, variable: Variable) -> String? {
-      guard let identifier = binding.identifier, let type = binding.type else { return nil }
-      if type.asFunctionType != nil {
-        return "\(identifier): @escaping \(type.description)"
+    let propertyWrapperVariables = group.variables.filter(\.isPropertyWrapper).flatMap(\.identifiers)
+    let parameters = group.variables
+      .filter { $0.isStoredProperty && !$0.isConstant }
+      .flatMap {
+        $0.bindings.compactMap { binding in
+          let parameter = binding.asFunctionParameter?.withoutTrivia().withEscapingAttribute
+          return defaultForOptional ? parameter?.withDefaultValueForOptional : parameter
+        }
       }
-      if defaultForOptional, type.isOptional {
-        return "\(identifier): \(type.description) = nil"
-      }
-      return "\(identifier): \(type.description)"
-    }
 
-    func makeBody(for binding: VariableBinding, variable: Variable) -> String? {
-      guard let identifier = binding.identifier else { return nil }
-      if variable.isPropertyWrapper {
-        return "self._\(identifier) = .init(wrappedValue: \(identifier))"
+    let initDeclSyntax = try InitializerDeclSyntax("\(raw: accessLevel?.withTrailingSpacing ?? "")init()") {
+      for parameter in parameters {
+        if propertyWrapperVariables.contains(parameter.name) {
+          "self._\(raw: parameter.name) = .init(wrappedValue: \(raw: parameter.name))"
+        } else {
+          "self.\(raw: parameter.name) = \(raw: parameter.name)"
+        }
       }
-      return "self.\(identifier) = \(identifier)"
-    }
+    }.withParameters(parameters)
 
-    let literals = group.variables.flatMap { variable -> [(String, String)] in
-      guard variable.isStoredProperty, !variable.isConstant else { return [] }
-      return variable.bindings.compactMap {
-        zip(
-          makeHeader(for: $0, variable: variable),
-          makeBody(for: $0, variable: variable)
-        )
-      }
-    }
-    return try [
-      InitializerDeclSyntax(
-        accessLevel: accessLevel,
-        literals: literals
-      ).asDeclSyntax,
+    return [
+      initDeclSyntax.asDeclSyntax,
     ]
   }
 

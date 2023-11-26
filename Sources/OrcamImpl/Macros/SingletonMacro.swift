@@ -16,7 +16,7 @@ public struct SingletonMacro: BaseMemberMacro {
     let entityName = declaration.entityName?.text ?? "Self"
     let accessLevelWithTrailingSpacing = DeclGroup(declaration).accessLevel?.withTrailingSpacing ?? ""
     let sharedVariableDeclSyntax = DeclSyntax(
-      stringLiteral: "\(accessLevelWithTrailingSpacing)static let shared = \(entityName)()"
+      "\(raw: accessLevelWithTrailingSpacing)static let shared = \(raw: entityName)()"
     )
     let syntaxes = group.containsVariable(name: "shared") ? [] : [sharedVariableDeclSyntax]
     return try syntaxes + InitMacro.expansion(

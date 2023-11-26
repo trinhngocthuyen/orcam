@@ -4,8 +4,6 @@ import XCTest
 import OrcamImpl
 
 final class InitMacroTests: BaseMacroTests {
-  private var testMacros: [String: Macro.Type] { ["Init": InitMacro.self] }
-
   func testMacroForClass() {
     assertMacroExpansion(
       """
@@ -29,10 +27,7 @@ final class InitMacroTests: BaseMacroTests {
         let z: Int = 0
         let completion: () -> Void
 
-        init(
-          x: Int,
-          completion: @escaping () -> Void
-        ) {
+        init(x: Int, completion: @escaping () -> Void) {
           self.x = x
           self.completion = completion
         }
@@ -56,10 +51,7 @@ final class InitMacroTests: BaseMacroTests {
         let x: Double?
         let y: Optional<Double>
 
-        init(
-          x: Double? = nil,
-          y: Optional<Double> = nil
-        ) {
+        init(x: Double? = nil, y: Optional<Double> = nil) {
           self.x = x
           self.y = y
         }
@@ -81,10 +73,7 @@ final class InitMacroTests: BaseMacroTests {
         let x: Double?
         let y: Optional<Double>
 
-        init(
-          x: Double?,
-          y: Optional<Double>
-        ) {
+        init(x: Double?, y: Optional<Double>) {
           self.x = x
           self.y = y
         }
@@ -112,10 +101,7 @@ final class InitMacroTests: BaseMacroTests {
         @State var x: Int
         @StateObject var vm: VM
 
-        init(
-          x: Int,
-          vm: VM
-        ) {
+        init(x: Int, vm: VM) {
           self._x = .init(wrappedValue: x)
           self._vm = .init(wrappedValue: vm)
         }
