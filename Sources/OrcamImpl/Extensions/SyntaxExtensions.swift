@@ -65,7 +65,7 @@ public extension WithModifiersSyntax {
   var accessLevel: String? { _proxy.accessLevel }
 
   func withAccessLevel(_ accessLevel: String?) -> Self {
-    guard let accessLevel else { return self }
+    guard let accessLevel, !accessLevel.isEmpty else { return self }
     return with(
       \.modifiers,
       modifiers + [DeclModifierSyntax(name: "\(raw: accessLevel)")]

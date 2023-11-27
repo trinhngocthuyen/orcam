@@ -36,3 +36,15 @@ do {
 
   _ = Service.shared
 }
+
+// MARK: @Copyable
+
+do {
+  @Copyable
+  struct Foo {
+    let x: Int
+    let y: Int?
+  }
+
+  _ = Foo(x: 0, y: 0).copy()
+}
