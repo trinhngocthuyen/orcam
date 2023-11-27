@@ -19,6 +19,10 @@ final class CopyableMacroTests: BaseMacroTests {
         let x: Int
         let y: Double
 
+        func copy(x: Int? = nil, y: Double? = nil) -> Self {
+          return .init(x: x ?? self.x, y: y ?? self.y)
+        }
+
         func copy(update_x: ((Int) -> Int)? = nil, update_y: ((Double) -> Double)? = nil) -> Self {
           func call<V>(_ f: ((V) -> V)?, _ v: V) -> V {
             f?(v) ?? v

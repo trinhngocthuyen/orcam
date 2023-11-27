@@ -46,5 +46,5 @@ do {
     let y: Int?
   }
 
-  _ = Foo(x: 0, y: 0).copy()
+  _ = Foo(x: 0, y: 0).copy(x: 1)
 }

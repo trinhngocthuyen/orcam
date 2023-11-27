@@ -16,25 +16,51 @@ public struct CopyableMacro: BaseMemberMacro {
     let accessLevel = arguments.value(for: "accessLevel", default: declaration.accessLevel)
 
     let initializerParameters = InitMacroHelper.initializerParameters(of: declaration)
-    let copyFuncParameters = initializerParameters
-      .map { parameter in
+
+    func createCopyFuncDeclSyntax(
+      paramaters: [FunctionParameter],
+      parametersCall: [String],
+      extraBody: ExprSyntax? = nil
+    ) throws -> FunctionDeclSyntax {
+      let parametersCallStr = parametersCall.joined(separator: ", ")
+      return try FunctionDeclSyntax("func copy() -> Self") {
+        if let extraBody {
+          "\(raw: extraBody)"
+        }
+        "return .init(\(raw: parametersCallStr))"
+      }
+      .withParameters(paramaters)
+      .withAccessLevel(accessLevel)
+    }
+
+    let copyFuncWithoutClosure = try createCopyFuncDeclSyntax(
+      paramaters: initializerParameters.map { parameter in
+        FunctionParameter(
+          name: parameter.name,
+          type: "\(raw: parameter.type.description)?"
+        ).withDefaultValueForOptional
+      },
+      parametersCall: initializerParameters.map { parameter in
+        "\(parameter.name): \(parameter.name) ?? self.\(parameter.name)"
+      }
+    )
+
+    let copyFuncWithClosure = try createCopyFuncDeclSyntax(
+      paramaters: initializerParameters.map { parameter in
         FunctionParameter(
           name: "update_\(parameter.name)",
           type: "((\(raw: parameter.type.description)) -> \(raw: parameter.type.description))?"
         ).withDefaultValueForOptional
-      }
-    let initializerParametersCall = initializerParameters.map { parameter in
-      "\(parameter.name): call(update_\(parameter.name), self.\(parameter.name))"
-    }.joined(separator: ", ")
+      },
+      parametersCall: initializerParameters.map { parameter in
+        "\(parameter.name): call(update_\(parameter.name), self.\(parameter.name))"
+      },
+      extraBody: "func call<V>(_ f: ((V) -> V)?, _ v: V) -> V { f?(v) ?? v }"
+    )
 
-    let copyFuncDeclSyntax = try FunctionDeclSyntax("func copy() -> Self") {
-      "func call<V>(_ f: ((V) -> V)?, _ v: V) -> V { f?(v) ?? v }"
-      "return .init(\(raw: initializerParametersCall))"
-    }
-    .withParameters(copyFuncParameters)
-    .withAccessLevel(accessLevel)
     return [
-      copyFuncDeclSyntax.asDeclSyntax,
+      copyFuncWithoutClosure.asDeclSyntax,
+      copyFuncWithClosure.asDeclSyntax,
     ]
   }
 }
