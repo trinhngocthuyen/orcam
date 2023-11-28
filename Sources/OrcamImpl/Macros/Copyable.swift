@@ -21,7 +21,7 @@ public struct CopyableMacro: BaseMemberMacro {
       paramaters: [FunctionParameter],
       parametersCall: [String],
       extraBody: ExprSyntax? = nil
-    ) throws -> FunctionDeclSyntax {
+    ) throws -> DeclSyntax {
       let parametersCallStr = parametersCall.joined(separator: ", ")
       return try FunctionDeclSyntax("func copy() -> Self") {
         if let extraBody {
@@ -31,36 +31,41 @@ public struct CopyableMacro: BaseMemberMacro {
       }
       .withParameters(paramaters)
       .withAccessLevel(accessLevel)
+      .asDeclSyntax
     }
 
-    let copyFuncWithoutClosure = try createCopyFuncDeclSyntax(
-      paramaters: initializerParameters.map { parameter in
-        FunctionParameter(
-          name: parameter.name,
-          type: "\(raw: parameter.type.description)?"
-        ).withDefaultValueForOptional
-      },
-      parametersCall: initializerParameters.map { parameter in
-        "\(parameter.name): \(parameter.name) ?? self.\(parameter.name)"
-      }
+    var syntaxes: [DeclSyntax] = []
+    try syntaxes.append(
+      createCopyFuncDeclSyntax(
+        paramaters: initializerParameters.map { parameter in
+          FunctionParameter(
+            name: parameter.name,
+            type: "\(raw: parameter.type.description)?"
+          ).withDefaultValueForOptional
+        },
+        parametersCall: initializerParameters.map { parameter in
+          "\(parameter.name): \(parameter.name) ?? self.\(parameter.name)"
+        }
+      )
     )
 
-    let copyFuncWithClosure = try createCopyFuncDeclSyntax(
-      paramaters: initializerParameters.map { parameter in
-        FunctionParameter(
-          name: "update_\(parameter.name)",
-          type: "((\(raw: parameter.type.description)) -> \(raw: parameter.type.description))?"
-        ).withDefaultValueForOptional
-      },
-      parametersCall: initializerParameters.map { parameter in
-        "\(parameter.name): call(update_\(parameter.name), self.\(parameter.name))"
-      },
-      extraBody: "func call<V>(_ f: ((V) -> V)?, _ v: V) -> V { f?(v) ?? v }"
-    )
+    if arguments.value(for: "closure", default: false) {
+      try syntaxes.append(
+        createCopyFuncDeclSyntax(
+          paramaters: initializerParameters.map { parameter in
+            FunctionParameter(
+              name: "update_\(parameter.name)",
+              type: "((\(raw: parameter.type.description)) -> \(raw: parameter.type.description))?"
+            ).withDefaultValueForOptional
+          },
+          parametersCall: initializerParameters.map { parameter in
+            "\(parameter.name): call(update_\(parameter.name), self.\(parameter.name))"
+          },
+          extraBody: "func call<V>(_ f: ((V) -> V)?, _ v: V) -> V { f?(v) ?? v }"
+        )
+      )
+    }
 
-    return [
-      copyFuncWithoutClosure.asDeclSyntax,
-      copyFuncWithClosure.asDeclSyntax,
-    ]
+    return syntaxes
   }
 }

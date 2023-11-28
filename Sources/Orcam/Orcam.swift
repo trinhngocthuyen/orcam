@@ -8,4 +8,6 @@ public macro Init(
 public macro Singleton() = #externalMacro(module: "OrcamImpl", type: "SingletonMacro")
 
 @attached(member, names: named(copy))
-public macro Copyable() = #externalMacro(module: "OrcamImpl", type: "CopyableMacro")
+public macro Copyable(
+  closure: Bool = false
+) = #externalMacro(module: "OrcamImpl", type: "CopyableMacro")

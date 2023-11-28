@@ -4,10 +4,33 @@ import XCTest
 import OrcamImpl
 
 final class CopyableMacroTests: BaseMacroTests {
-  func testMacro() {
+  func testMacroWithoutClosure() {
     assertMacroExpansion(
       """
       @Copyable
+      struct Foo {
+        let x: Int
+        let y: Double
+      }
+      """,
+      expandedSource:
+      """
+      struct Foo {
+        let x: Int
+        let y: Double
+
+        func copy(x: Int? = nil, y: Double? = nil) -> Self {
+          return .init(x: x ?? self.x, y: y ?? self.y)
+        }
+      }
+      """
+    )
+  }
+
+  func testMacroWithClosure() {
+    assertMacroExpansion(
+      """
+      @Copyable(closure: true)
       struct Foo {
         let x: Int
         let y: Double
