@@ -13,7 +13,7 @@ public struct CopyableMacro: BaseMemberMacro {
   ) throws -> [DeclSyntax] {
     try declaration.expectKind(.classDecl, .structDecl)
     let arguments = try MacroArguments(from: node.asMacroAttribute)
-    let accessLevel = arguments.value(for: "accessLevel", default: declaration.accessLevel)
+    let accessLevel = arguments.value(for: "accessLevel", default: declaration.accessLevel ?? "")
 
     let initializerParameters = InitMacroHelper.initializerParameters(of: declaration)
 
