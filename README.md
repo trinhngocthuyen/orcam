@@ -44,11 +44,7 @@ class Foo {
   let y: Double?
   let completion: () -> Void
 
-  init(
-    x: Int,
-    y: Double? = nil,
-    completion: @escaping () -> Void
-  ) {
+  init(x: Int, y: Double? = nil, completion: @escaping () -> Void) {
     self.x = x
     self.y = y
     self.completion = completion
@@ -72,9 +68,7 @@ class Foo {
 class Foo {
   static let shared = Foo()
 
-  private init(
-
-  ) {
+  private init() {
   }
 }
 ```
@@ -90,3 +84,60 @@ class Foo {
   static let shared = Foo(x: 0)
 }
 ```
+
+### `@Copyable` - Generate the `copy` function of a struct/class with updated properties
+
+```swift
+@Copyable
+struct Foo {
+  let x: Int
+  let y: Int
+}
+```
+
+<details>
+  <summary>Expanded code</summary>
+
+```swift
+struct Foo {
+  let x: Int
+  let y: Int
+
+  func copy(x: Int? = nil, y: Int? = nil) -> Self {
+    return .init(x: x ?? self.x, y: y ?? self.y)
+  }
+}
+```
+</details>
+
+This macro also generates a `copy` function in which each property can be updated with a closure. To enable this, pass the argument `closure` as `true` to the macro.
+
+```swift
+@Copyable(closure: true)
+struct Foo {
+  let x: Int
+  let y: Int
+}
+```
+
+<details>
+  <summary>Expanded code</summary>
+
+```swift
+struct Foo {
+  let x: Int
+  let y: Int
+
+  func copy(x: Int? = nil, y: Int? = nil) -> Self {
+    return .init(x: x ?? self.x, y: y ?? self.y)
+  }
+
+  func copy(update_x: ((Int) -> Int)? = nil, update_y: ((Int) -> Int)? = nil) -> Self {
+    func call<V>(_ f: ((V) -> V)?, _ v: V) -> V {
+      f?(v) ?? v
+    }
+    return .init(x: call(update_x, self.x), y: call(update_y, self.y))
+  }
+}
+```
+</details>
