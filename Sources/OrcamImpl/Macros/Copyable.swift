@@ -20,7 +20,7 @@ public struct CopyableMacro: BaseMemberMacro {
     func createCopyFuncDeclSyntax(
       paramaters: [FunctionParameter],
       parametersCall: [String],
-      extraBody: ExprSyntax? = nil
+      extraBody: String? = nil
     ) throws -> DeclSyntax {
       let parametersCallStr = parametersCall.joined(separator: ", ")
       return try FunctionDeclSyntax("func copy() -> Self") {

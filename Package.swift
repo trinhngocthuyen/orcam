@@ -13,8 +13,8 @@ let package = Package(
       targets: ["Orcam"]
     ),
     .executable(
-      name: "OrcamClient",
-      targets: ["OrcamClient"]
+      name: "OrcamPlayground",
+      targets: ["OrcamPlayground"]
     ),
   ],
   dependencies: [
@@ -32,7 +32,7 @@ let package = Package(
     ),
 
     .target(name: "Orcam", dependencies: ["OrcamImpl"]),
-    .executableTarget(name: "OrcamClient", dependencies: ["Orcam"]),
+    .executableTarget(name: "OrcamPlayground", dependencies: ["Orcam"]),
     .testTarget(
       name: "OrcamTests",
       dependencies: [
